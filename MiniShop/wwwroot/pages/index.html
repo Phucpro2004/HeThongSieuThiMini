@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MiniShop | Modern Tech Essentials</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <!-- Ionicons for icons -->
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+
+<body>
+
+    <header>
+        <div class="logo-wrap">
+            <a href="#" class="logo">MiniShop.</a>
+            <div class="mobile-menu-btn" id="mobile-menu-btn">
+                <ion-icon name="menu-outline"></ion-icon>
+            </div>
+        </div>
+        <nav id="main-nav">
+            <ul>
+                <li><a href="#">Home</a></li>
+                <li><a href="#products">Products</a></li>
+                <li id="nav-admin" style="display: none;"><a href="admin.html" style="color: var(--primary)">Admin
+                        Panel</a></li>
+            </ul>
+        </nav>
+        <div class="nav-actions">
+            <div id="user-section" style="display: flex; gap: 15px; align-items: center; margin-right: 20px;">
+                <button id="btn-login-modal" class="btn btn-outline"
+                    style="padding: 8px 20px; font-size: 0.9rem; border: 1px solid var(--primary); color: white; background: transparent; border-radius: 20px; cursor: pointer;">Login</button>
+            </div>
+            <div class="cart-icon" id="btn-cart-modal">
+                <ion-icon name="cart-outline"></ion-icon>
+                <span class="cart-count">0</span>
+            </div>
+        </div>
+    </header>
+
+    <section class="hero">
+        <div class="blob"></div>
+        <div class="hero-content">
+            <span class="tagline">Next-Gen Technology</span>
+            <h1>Level up your <span>lifestyle</span></h1>
+            <p>Discover our exclusive collection of premium electronics, featuring cutting-edge design and unparalleled
+                performance. Shop the future today.</p>
+            <a href="#products" class="btn btn-primary">Explore Now</a>
+        </div>
+        <div class="hero-image">
+            <img src="../images/hero.png" alt="Futuristic Tech Shopping">
+        </div>
+    </section>
+
+    <section id="products" class="featured">
+        <h2 class="section-title">Trending <span>Gear</span></h2>
+
+        <div class="product-filters" style="display: flex; gap: 15px; margin-bottom: 30px; justify-content: center;">
+            <input type="text" id="search-product" placeholder="Search products..."
+                style="padding: 10px 15px; width: 300px; border-radius: 20px; border: 1px solid var(--glass-border); background: rgba(255,255,255,0.05); color: white; outline: none;">
+            <select id="filter-category"
+                style="padding: 10px 15px; border-radius: 20px; border: 1px solid var(--glass-border); background: rgba(255,255,255,0.05); color: white; outline: none;">
+                <option value="" style="color: black;">All Categories</option>
+            </select>
+        </div>
+
+        <div class="products-grid" id="products-grid">
+            <!-- Products will be loaded here dynamically -->
+        </div>
+    </section>
+
+    <footer>
+        <p>&copy; 2026 MiniShop. Designed with modern aesthetics.</p>
+    </footer>
+
+    <!-- Auth Modal -->
+    <div id="auth-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" id="close-auth">&times;</span>
+            <h2 id="auth-title">Login</h2>
+            <form id="auth-form">
+                <div class="form-group">
+                    <label>Username</label>
+                    <input type="text" id="username" required>
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <div style="position: relative;">
+                        <input type="password" id="password" required style="padding-right: 40px;">
+                        <ion-icon name="eye-outline" class="toggle-password" data-target="password"
+                            style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: var(--text-muted); font-size: 1.2rem;"></ion-icon>
+                    </div>
+                </div>
+                <div class="form-group" id="confirm-password-group" style="display: none;">
+                    <label>Confirm Password</label>
+                    <div style="position: relative;">
+                        <input type="password" id="confirm-password" style="padding-right: 40px;">
+                        <ion-icon name="eye-outline" class="toggle-password" data-target="confirm-password"
+                            style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: var(--text-muted); font-size: 1.2rem;"></ion-icon>
+                    </div>
+                </div>
+                <p id="auth-error" style="color: #ff4d4d; font-size: 0.9rem; display: none;"></p>
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 15px;">Submit</button>
+            </form>
+
+            <div style="text-align: center; margin-top: 15px;">
+                <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 10px;">- OR -</p>
+                <div id="g_id_onload"
+                    data-client_id="291806532654-h0tfcnp8ose3kifakknpmk0s1436ureb.apps.googleusercontent.com"
+                    data-callback="handleGoogleCallback" data-auto_prompt="false">
+                </div>
+                <div class="g_id_signin" data-type="standard" data-size="medium" data-theme="outline"
+                    data-text="sign_in_with" data-shape="rectangular" data-logo_alignment="left"
+                    style="display: flex; justify-content: center;">
+                </div>
+            </div>
+            <p style="text-align: center; margin-top: 15px; font-size: 0.9rem;">
+                <span id="auth-switch-text">Don't have an account?</span>
+                <a href="#" id="auth-switch-btn" style="color: var(--secondary);">Register</a>
+            </p>
+        </div>
+    </div>
+
+    <!-- Product Detail Modal -->
+    <div id="product-detail-modal" class="modal">
+        <div class="modal-content"
+            style="max-width: 900px; padding: 0; overflow: hidden; background: var(--bg-dark); border: 1px solid var(--glass-border);">
+            <span class="close-modal" id="close-product-detail"
+                style="position: absolute; top: 15px; right: 20px; z-index: 10; color: white;">&times;</span>
+            <div class="product-detail-grid">
+                <div
+                    style="background: rgba(255,255,255,0.02); display: flex; align-items: center; justify-content: center; padding: 40px;">
+                    <img id="detail-img" src=""
+                        style="max-width: 100%; max-height: 400px; border-radius: 15px; filter: drop-shadow(0 10px 20px rgba(0,0,0,0.5)); transition: transform 0.3s ease;"
+                        onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                </div>
+                <div style="padding: 40px; display: flex; flex-direction: column; justify-content: center;">
+                    <span id="detail-category"
+                        style="color: var(--secondary); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; margin-bottom: 10px;">Category</span>
+                    <h2 id="detail-name" style="font-size: 2.5rem; margin-bottom: 15px; line-height: 1.2;">Product Name
+                    </h2>
+                    <div id="detail-price"
+                        style="font-size: 2rem; font-weight: 800; color: white; margin-bottom: 25px;">$0.00</div>
+                    <div
+                        style="background: rgba(255,255,255,0.05); padding: 20px; border-radius: 15px; margin-bottom: 30px;">
+                        <h4 style="margin-bottom: 10px; color: var(--text-muted);">Description</h4>
+                        <p id="detail-desc" style="color: #ddd; line-height: 1.6; font-size: 1rem;">Product description
+                            goes here...</p>
+                    </div>
+                    <div style="display: flex; gap: 15px; margin-top: auto;">
+                        <button id="detail-add-cart" class="btn btn-primary"
+                            style="flex: 1; padding: 15px; font-size: 1.1rem; border-radius: 12px;">Add to Cart</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cart Modal -->
+    <div id="cart-modal" class="modal">
+        <div class="modal-content" style="max-width: 600px;">
+            <span class="close-modal" id="close-cart">&times;</span>
+            <h2 style="margin-bottom: 20px;">Your Cart</h2>
+
+            <div id="cart-items" style="max-height: 300px; overflow-y: auto; margin-bottom: 20px;">
+                <!-- Filled via JS -->
+            </div>
+
+            <div
+                style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px; margin-bottom: 20px;">
+                <span style="font-size: 1.2rem;">Total:</span>
+                <span id="cart-total"
+                    style="font-size: 1.5rem; font-weight: bold; color: var(--secondary);">$0.00</span>
+            </div>
+
+            <div class="form-group">
+                <label>Payment Method</label>
+                <select id="payment-method"
+                    style="padding: 10px; width: 100%; border-radius: 8px; background: rgba(255,255,255,0.05); color: white; border: 1px solid var(--glass-border); outline: none;">
+                    <option value="Cash" style="color: black;">Cash on Delivery</option>
+                    <option value="Credit Card" style="color: black;">Credit Card</option>
+                    <option value="Bank Transfer" style="color: black;">Bank Transfer</option>
+                    <option value="VNPay" style="color: black;">VNPay QR</option>
+                </select>
+            </div>
+
+            <!-- Payment Details Sections -->
+            <div id="payment-details-container" style="margin-bottom: 20px;">
+
+                <!-- Credit Card Form -->
+                <div id="credit-card-details"
+                    style="display: none; background: rgba(255,255,255,0.05); padding: 15px; border-radius: 10px; border: 1px solid var(--glass-border);">
+                    <h4 style="margin-bottom: 15px; color: var(--secondary);">Enter Card Details</h4>
+                    <div class="form-group">
+                        <label>Card Number</label>
+                        <input type="text" placeholder="XXXX XXXX XXXX XXXX"
+                            style="width: 100%; padding: 10px; border-radius: 8px; background: rgba(0,0,0,0.2); border: 1px solid var(--glass-border); color: white;">
+                    </div>
+                    <div style="display: flex; gap: 15px;">
+                        <div class="form-group" style="flex: 1;">
+                            <label>Expiry Date</label>
+                            <input type="text" placeholder="MM/YY"
+                                style="width: 100%; padding: 10px; border-radius: 8px; background: rgba(0,0,0,0.2); border: 1px solid var(--glass-border); color: white;">
+                        </div>
+                        <div class="form-group" style="flex: 1;">
+                            <label>CVV</label>
+                            <input type="text" placeholder="123"
+                                style="width: 100%; padding: 10px; border-radius: 8px; background: rgba(0,0,0,0.2); border: 1px solid var(--glass-border); color: white;">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bank Transfer Details -->
+                <div id="bank-transfer-details"
+                    style="display: none; background: rgba(255,255,255,0.05); padding: 15px; border-radius: 10px; border: 1px solid var(--glass-border);">
+                    <h4 style="margin-bottom: 15px; color: var(--secondary);">Select Bank</h4>
+                    <div class="form-group">
+                        <select
+                            style="width: 100%; padding: 10px; border-radius: 8px; background: rgba(0,0,0,0.2); border: 1px solid var(--glass-border); color: white; outline: none;">
+                            <option value="vcb" style="color: black;">Vietcombank (VCB)</option>
+                            <option value="tcb" style="color: black;">Techcombank (TCB)</option>
+                            <option value="mbb" style="color: black;">MB Bank</option>
+                            <option value="bidv" style="color: black;">BIDV</option>
+                        </select>
+                    </div>
+                    <div
+                        style="background: rgba(0, 210, 255, 0.1); padding: 10px; border-radius: 8px; font-size: 0.9rem; margin-top: 10px;">
+                        <p><strong>Account Name:</strong> MINISHOP VN</p>
+                        <p><strong>Account Number:</strong> 1234567890</p>
+                        <p><strong>Message:</strong> (Your phone number)</p>
+                    </div>
+                </div>
+
+                <!-- VNPay Details -->
+                <div id="vnpay-details"
+                    style="display: none; text-align: center; background: rgba(255,255,255,0.05); padding: 15px; border-radius: 10px; border: 1px solid var(--glass-border);">
+                    <h4 style="margin-bottom: 10px; color: var(--secondary);">Scan QR Code via VNPay</h4>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 15px;">Use any banking app
+                        that supports VNPay QR to complete your payment.</p>
+                    <div style="background: white; padding: 10px; border-radius: 10px; display: inline-block;">
+                        <img src="../images/vnpay_qr.png" alt="VNPay QR Code"
+                            style="width: 200px; height: 200px; border-radius: 5px;">
+                    </div>
+                </div>
+
+            </div>
+
+            <button id="btn-checkout" class="btn btn-primary"
+                style="width: 100%; padding: 15px; font-size: 1.1rem; border-radius: 12px; margin-top: 10px;">Checkout</button>
+            <p id="checkout-msg" style="text-align: center; margin-top: 10px; font-weight: bold;"></p>
+        </div>
+    </div>
+
+    <script src="../js/script.js"></script>
+</body>
+
+</html>
