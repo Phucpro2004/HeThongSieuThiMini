@@ -56,6 +56,7 @@ builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IReportService, ReportService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<ICustomerService, CustomerService>();
+builder.Services.AddScoped<IGoodsReceiptService, GoodsReceiptService>();
 
 // Configure Authentication (JWT)
 var key = Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"] ?? "SecretKeyForJwtAuthNeedsToBeLongEnough!");

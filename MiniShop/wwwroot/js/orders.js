@@ -33,7 +33,7 @@ function renderOrders(orders) {
     }
 
     orders.forEach(o => {
-        const d = new Date(o.orderDate);
+        const d = new Date(o.createdAt);
         const dateStr = d.toLocaleDateString('vi-VN') + ' ' + d.toLocaleTimeString('vi-VN');
         
         tbody.innerHTML += `
@@ -68,33 +68,38 @@ function handleSearch(e) {
     renderOrders(filtered);
 }
 
-function viewOrder(id) {
-    const order = ordersList.find(o => o.id === id);
-    if (!order) return;
-    
-    document.getElementById('modalOrderId').innerText = order.id;
-    const d = new Date(order.orderDate);
-    document.getElementById('modalOrderDate').innerText = d.toLocaleDateString('vi-VN') + ' ' + d.toLocaleTimeString('vi-VN');
-    document.getElementById('modalOrderTotal').innerText = order.totalAmount.toLocaleString('vi-VN') + ' VNĐ';
-    
-    const tbody = document.querySelector('#orderItemsTable tbody');
-    tbody.innerHTML = '';
-    
-    if (order.items && order.items.length > 0) {
-        order.items.forEach(item => {
-            const total = item.quantity * item.unitPrice;
-            tbody.innerHTML += `
-                <tr>
-                    <td class="fw-medium">${item.productName}</td>
-                    <td class="text-center">${item.quantity}</td>
-                    <td class="text-end">${item.unitPrice.toLocaleString('vi-VN')}</td>
-                    <td class="text-end fw-bold text-primary">${total.toLocaleString('vi-VN')}</td>
-                </tr>
-            `;
-        });
-    } else {
-        tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted">Không có dữ liệu sản phẩm</td></tr>';
+async function viewOrder(id) {
+    try {
+        const res = await axios.get('/api/orders/' + id);
+        const order = res.data;
+        
+        document.getElementById('modalOrderId').innerText = order.id;
+        const d = new Date(order.createdAt);
+        document.getElementById('modalOrderDate').innerText = d.toLocaleDateString('vi-VN') + ' ' + d.toLocaleTimeString('vi-VN');
+        document.getElementById('modalOrderTotal').innerText = order.totalAmount.toLocaleString('vi-VN') + ' VNĐ';
+        
+        const tbody = document.querySelector('#orderItemsTable tbody');
+        tbody.innerHTML = '';
+        
+        if (order.orderDetails && order.orderDetails.length > 0) {
+            order.orderDetails.forEach(item => {
+                const total = item.quantity * item.unitPrice;
+                tbody.innerHTML += `
+                    <tr>
+                        <td class="fw-medium">${item.productName}</td>
+                        <td class="text-center">${item.quantity}</td>
+                        <td class="text-end">${item.unitPrice.toLocaleString('vi-VN')}</td>
+                        <td class="text-end fw-bold text-primary">${total.toLocaleString('vi-VN')}</td>
+                    </tr>
+                `;
+            });
+        } else {
+            tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted">Không có dữ liệu sản phẩm</td></tr>';
+        }
+        
+        orderModal.show();
+    } catch (error) {
+        console.error('Failed to load order details', error);
+        alert('Lỗi khi tải chi tiết hóa đơn');
     }
-    
-    orderModal.show();
 }

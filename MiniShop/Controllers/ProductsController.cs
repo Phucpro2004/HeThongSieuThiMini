@@ -6,7 +6,7 @@ using MiniShop.Interfaces;
 using System;
 using System.IO;
 using System.Threading.Tasks;
-
+//Lượng đã sửa 
 namespace MiniShop.Controllers
 {
     [Route("api/[controller]")]
@@ -35,6 +35,14 @@ namespace MiniShop.Controllers
         {
             // Re-using GetAllAsync but defaulting to large page size or no pagination for search
             var products = await _productService.GetAllAsync(1, 100, keyword);
+            return Ok(products);
+        }
+
+        [HttpGet("low-stock")]
+        [Authorize(Roles = "Admin,Cashier")]
+        public async Task<IActionResult> GetLowStock()
+        {
+            var products = await _productService.GetLowStockProductsAsync();
             return Ok(products);
         }
 

@@ -21,6 +21,8 @@ namespace MiniShop.Models
         public string? Unit { get; set; }
         public bool IsActive { get; set; } = true;
         
+        public int MinStockThreshold { get; set; } = 10;
+        
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 

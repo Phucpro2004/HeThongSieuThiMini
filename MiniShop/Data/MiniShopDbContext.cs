@@ -18,6 +18,8 @@ namespace MiniShop.Data
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderDetail> OrderDetails { get; set; }
         public DbSet<Payment> Payments { get; set; }
+        public DbSet<GoodsReceipt> GoodsReceipts { get; set; }
+        public DbSet<GoodsReceiptDetail> GoodsReceiptDetails { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -56,6 +58,22 @@ namespace MiniShop.Data
                 .WithMany(o => o.Payments)
                 .HasForeignKey(p => p.OrderId);
 
+            modelBuilder.Entity<GoodsReceipt>()
+                .HasOne(gr => gr.User)
+                .WithMany()
+                .HasForeignKey(gr => gr.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<GoodsReceiptDetail>()
+                .HasOne(grd => grd.GoodsReceipt)
+                .WithMany(gr => gr.GoodsReceiptDetails)
+                .HasForeignKey(grd => grd.GoodsReceiptId);
+
+            modelBuilder.Entity<GoodsReceiptDetail>()
+                .HasOne(grd => grd.Product)
+                .WithMany()
+                .HasForeignKey(grd => grd.ProductId);
+
             // Precision for decimals
             var decimalProps = new[] {
                 typeof(Product).GetProperty("Price"),
@@ -67,7 +85,10 @@ namespace MiniShop.Data
                 typeof(OrderDetail).GetProperty("SubTotal"),
                 typeof(Payment).GetProperty("Amount"),
                 typeof(Payment).GetProperty("AmountReceived"),
-                typeof(Payment).GetProperty("ChangeAmount")
+                typeof(Payment).GetProperty("ChangeAmount"),
+                typeof(GoodsReceipt).GetProperty("TotalAmount"),
+                typeof(GoodsReceiptDetail).GetProperty("UnitPrice"),
+                typeof(GoodsReceiptDetail).GetProperty("SubTotal")
             };
 
             foreach (var prop in decimalProps)
@@ -86,9 +107,15 @@ namespace MiniShop.Data
             var passHash = BCrypt.Net.BCrypt.HashPassword("ToilaADMIN123");
 
             // 1. Seed Users (Admin & Cashiers)
-            if (!Users.Any(u => u.Email == "admin@minishop.com"))
+            var adminUser = Users.FirstOrDefault(u => u.Email == "admin@minishop.com");
+            if (adminUser == null)
             {
                 Users.Add(new User { FullName = "Admin", Email = "admin@minishop.com", PasswordHash = passHash, Role = "Admin", IsActive = true });
+            }
+            else
+            {
+                adminUser.PasswordHash = passHash;
+                adminUser.IsActive = true;
             }
             if (!Users.Any(u => u.Email == "CN01@minishop.com"))
             {

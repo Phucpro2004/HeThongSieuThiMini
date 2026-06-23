@@ -161,8 +161,12 @@
                         <input type="number" class="form-control" id="productStock" required>
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label text-muted fw-medium">URL Ảnh minh họa</label>
-                        <input type="text" class="form-control" id="productImage" placeholder="https://...">
+                        <label class="form-label text-muted fw-medium">Ảnh minh họa</label>
+                        <div class="d-flex align-items-center gap-2">
+                            <img id="imagePreview" src="https://via.placeholder.com/50" class="rounded border" style="width: 50px; height: 50px; object-fit: cover;" alt="Preview">
+                            <input type="file" class="form-control" id="productImageFile" accept="image/*" onchange="previewImage(event)">
+                            <input type="hidden" id="productImage">
+                        </div>
                     </div>
                 </div>
                 <button type="button" class="btn btn-primary w-100 py-2 rounded-pill fw-bold mt-2" onclick="saveProduct()">LƯU SẢN PHẨM</button>

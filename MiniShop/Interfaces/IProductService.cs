@@ -12,5 +12,6 @@ namespace MiniShop.Interfaces
         Task<bool> UpdateAsync(int id, ProductCreateRequest request);
         Task<bool> DeleteAsync(int id);
         Task<bool> RestockAsync(int productId, int quantity);
+        Task<IEnumerable<ProductResponse>> GetLowStockProductsAsync();
     }
 }

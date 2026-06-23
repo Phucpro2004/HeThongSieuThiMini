@@ -35,8 +35,8 @@ async function loadCategories() {
 
 async function fetchProducts() {
     try {
-        const res = await axios.get('/api/products');
-        productsList = res.data;
+        const res = await axios.get('/api/products?pageNumber=1&pageSize=1000');
+        productsList = res.data.data || res.data; // Handle PagedResponse
         renderProducts(productsList);
     } catch (error) {
         console.error('Failed to load products', error);
@@ -108,6 +108,9 @@ function filterData(term, catId) {
 function openAddModal() {
     document.getElementById('productForm').reset();
     document.getElementById('productId').value = '';
+    document.getElementById('productImage').value = '';
+    document.getElementById('productImageFile').value = '';
+    document.getElementById('imagePreview').src = 'https://via.placeholder.com/50';
     document.getElementById('productModalTitle').innerHTML = '<i class="fa-solid fa-box-open me-2"></i>Thêm Sản Phẩm';
 }
 
@@ -122,20 +125,49 @@ function openEditModal(id) {
     document.getElementById('productPrice').value = p.price;
     document.getElementById('productStock').value = p.stockQuantity;
     document.getElementById('productImage').value = p.imageUrl || '';
+    document.getElementById('productImageFile').value = '';
+    document.getElementById('imagePreview').src = p.imageUrl || 'https://via.placeholder.com/50';
     
     document.getElementById('productModalTitle').innerHTML = '<i class="fa-solid fa-pen-to-square me-2"></i>Sửa Sản Phẩm';
     productModal.show();
 }
 
+function previewImage(event) {
+    const file = event.target.files[0];
+    if (file) {
+        document.getElementById('imagePreview').src = URL.createObjectURL(file);
+    }
+}
+
 async function saveProduct() {
     const id = document.getElementById('productId').value;
+    
+    // Upload image first if selected
+    const fileInput = document.getElementById('productImageFile');
+    let finalImageUrl = document.getElementById('productImage').value;
+
+    if (fileInput.files.length > 0) {
+        const formData = new FormData();
+        formData.append('file', fileInput.files[0]);
+        try {
+            const uploadRes = await axios.post('/api/uploads/image', formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
+            finalImageUrl = uploadRes.data.url;
+        } catch (error) {
+            console.error('Image upload failed', error);
+            alert('Lỗi khi tải ảnh lên: ' + (error.response?.data?.message || 'Unknown Error'));
+            return; // Stop saving product if upload fails
+        }
+    }
+
     const data = {
         name: document.getElementById('productName').value,
         barcode: document.getElementById('productBarcode').value,
         categoryId: parseInt(document.getElementById('productCategoryId').value),
         price: parseFloat(document.getElementById('productPrice').value),
         stockQuantity: parseInt(document.getElementById('productStock').value),
-        imageUrl: document.getElementById('productImage').value
+        imageUrl: finalImageUrl
     };
     
     if (!data.name || !data.barcode || isNaN(data.price) || isNaN(data.stockQuantity)) {

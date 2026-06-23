@@ -43,14 +43,12 @@ function renderProducts(items) {
     items.forEach(p => {
         const img = p.imageUrl ? p.imageUrl : 'https://via.placeholder.com/150';
         grid.innerHTML += `
-            <div class="col-md-4 col-lg-3">
-                <div class="card h-100 product-card shadow-sm border-0" onclick="addToCart(${p.id})">
-                    <img src="${img}" class="card-img-top" alt="${p.name}">
-                    <div class="card-body p-2 text-center">
-                        <h6 class="card-title mb-1 text-truncate fw-bold" title="${p.name}">${p.name}</h6>
-                        <div class="text-danger fw-bold">${p.price.toLocaleString('vi-VN')} đ</div>
-                        <small class="text-muted">Tồn kho: ${p.stockQuantity}</small>
-                    </div>
+            <div class="card h-100 product-card shadow-sm border-0" onclick="addToCart(${p.id})">
+                <img src="${img}" class="card-img-top" alt="${p.name}">
+                <div class="card-body p-2 text-center">
+                    <h6 class="card-title mb-1 text-truncate fw-bold" title="${p.name}">${p.name}</h6>
+                    <div class="text-danger fw-bold">${p.price.toLocaleString('vi-VN')} đ</div>
+                    <small class="text-muted">Tồn kho: ${p.stockQuantity}</small>
                 </div>
             </div>
         `;

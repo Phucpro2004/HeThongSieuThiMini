@@ -87,6 +87,30 @@ namespace MiniShop.Services
             return true;
         }
 
+        public async Task<IEnumerable<ProductResponse>> GetLowStockProductsAsync()
+        {
+            var products = await _context.Products
+                .Include(p => p.Category)
+                .Where(p => p.IsActive && p.StockQuantity <= p.MinStockThreshold)
+                .OrderBy(p => p.StockQuantity)
+                .ToListAsync();
+
+            return products.Select(p => new ProductResponse
+            {
+                Id = p.Id,
+                Name = p.Name,
+                Barcode = p.Barcode,
+                Description = p.Description,
+                Price = p.Price,
+                OriginalPrice = p.OriginalPrice,
+                StockQuantity = p.StockQuantity,
+                ImageUrl = p.ImageUrl,
+                Unit = p.Unit,
+                IsActive = p.IsActive,
+                CategoryName = p.Category?.Name
+            });
+        }
+
         public async Task<bool> RestockAsync(int productId, int quantity)
         {
             if (quantity <= 0) return false;
