@@ -3,6 +3,10 @@ using System.ComponentModel.DataAnnotations;
 
 namespace MiniShop.DTOs
 {
+    /// <summary>
+    /// Request model for creating a goods receipt.
+    /// Modified by Phuc.
+    /// </summary>
     public class GoodsReceiptCreateRequest
     {
         [Required]
