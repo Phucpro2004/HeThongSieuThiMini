@@ -33,25 +33,7 @@ namespace MiniShop.Services
                 return null; // Invalid credentials
             }
 
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.UTF8.GetBytes(_configuration["Jwt:Key"] ?? throw new InvalidOperationException("JWT Key is missing"));
-
-            var tokenDescriptor = new SecurityTokenDescriptor
-            {
-                Subject = new ClaimsIdentity(new System.Security.Claims.Claim[]
-                {
-                    new System.Security.Claims.Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                    new System.Security.Claims.Claim(ClaimTypes.Name, user.Email),
-                    new System.Security.Claims.Claim(ClaimTypes.Role, user.Role)
-                }),
-                Expires = DateTime.UtcNow.AddHours(2),
-                Issuer = _configuration["Jwt:Issuer"],
-                Audience = _configuration["Jwt:Audience"],
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
-            };
-
-            var token = tokenHandler.CreateToken(tokenDescriptor);
-            return tokenHandler.WriteToken(token);
+            return GenerateJwtToken(user);
         }
 
         public async Task<bool> RegisterAsync(RegisterRequest request)
@@ -98,30 +80,35 @@ namespace MiniShop.Services
                     await _context.SaveChangesAsync();
                 }
 
-                var tokenHandler = new JwtSecurityTokenHandler();
-                var key = Encoding.UTF8.GetBytes(_configuration["Jwt:Key"] ?? throw new InvalidOperationException("JWT Key is missing"));
-
-                var tokenDescriptor = new SecurityTokenDescriptor
-                {
-                    Subject = new ClaimsIdentity(new System.Security.Claims.Claim[]
-                    {
-                        new System.Security.Claims.Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                        new System.Security.Claims.Claim(ClaimTypes.Name, user.Email),
-                        new System.Security.Claims.Claim(ClaimTypes.Role, user.Role)
-                    }),
-                    Expires = DateTime.UtcNow.AddHours(2),
-                    Issuer = _configuration["Jwt:Issuer"],
-                    Audience = _configuration["Jwt:Audience"],
-                    SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
-                };
-
-                var token = tokenHandler.CreateToken(tokenDescriptor);
-                return tokenHandler.WriteToken(token);
+                return GenerateJwtToken(user);
             }
             catch (Exception)
             {
                 return null;
             }
+        }
+
+        private string GenerateJwtToken(Models.User user)
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var key = Encoding.UTF8.GetBytes(_configuration["Jwt:Key"] ?? throw new InvalidOperationException("JWT Key is missing"));
+
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(new System.Security.Claims.Claim[]
+                {
+                    new System.Security.Claims.Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                    new System.Security.Claims.Claim(ClaimTypes.Name, user.Email),
+                    new System.Security.Claims.Claim(ClaimTypes.Role, user.Role)
+                }),
+                Expires = DateTime.UtcNow.AddHours(2),
+                Issuer = _configuration["Jwt:Issuer"],
+                Audience = _configuration["Jwt:Audience"],
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+            };
+
+            var token = tokenHandler.CreateToken(tokenDescriptor);
+            return tokenHandler.WriteToken(token);
         }
     }
 }

@@ -4,6 +4,8 @@ using MiniShop.DTOs;
 using MiniShop.Interfaces;
 using MiniShop.Models;
 using System;
+using System.Linq;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace MiniShop.Services
@@ -22,26 +24,34 @@ namespace MiniShop.Services
             using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
+                var productIds = request.CartItems.Select(ci => ci.ProductId).ToList();
+                var products = await _context.Products.Where(p => productIds.Contains(p.Id)).ToDictionaryAsync(p => p.Id);
+
                 decimal subTotal = 0;
 
                 // Step 1 & 2: Loop CartItems, check stock, and calculate subtotal
                 foreach (var item in request.CartItems)
                 {
-                    var product = await _context.Products.FindAsync(item.ProductId);
-                    if (product == null)
+                    if (!products.TryGetValue(item.ProductId, out var product))
                     {
-                        throw new Exception($"Product with ID {item.ProductId} not found.");
+                        throw new Exceptions.NotFoundException($"Product with ID {item.ProductId} not found.");
                     }
 
                     if (product.StockQuantity < item.Quantity)
                     {
-                        throw new Exception($"Sản phẩm '{product.Name}' không đủ tồn kho.");
+                        throw new Exceptions.BadRequestException($"Sản phẩm '{product.Name}' không đủ tồn kho.");
                     }
 
                     subTotal += product.Price * item.Quantity;
                 }
 
                 decimal totalAmount = subTotal - request.Discount;
+
+                decimal changeAmount = request.AmountReceived - totalAmount;
+                if (request.AmountReceived < totalAmount)
+                {
+                    throw new Exceptions.BadRequestException("Khách đưa thiếu tiền.");
+                }
 
                 // Step 3: Create Order
                 var order = new Order
@@ -52,42 +62,35 @@ namespace MiniShop.Services
                     TotalAmount = totalAmount,
                     Status = "Paid",
                     CustomerId = request.CustomerId,
-                    CashierId = cashierId
+                    CashierId = cashierId,
+                    OrderDetails = new List<OrderDetail>()
                 };
-
-                _context.Orders.Add(order);
-                await _context.SaveChangesAsync(); // save to get OrderId
 
                 // Step 4 & 5: Create OrderDetails and Update Stock
                 foreach (var item in request.CartItems)
                 {
-                    var product = await _context.Products.FindAsync(item.ProductId);
+                    var product = products[item.ProductId];
                     
                     var orderDetail = new OrderDetail
                     {
-                        OrderId = order.Id,
                         ProductId = item.ProductId,
                         Quantity = item.Quantity,
-                        UnitPrice = product!.Price,
+                        UnitPrice = product.Price,
                         SubTotal = product.Price * item.Quantity
                     };
                     
-                    _context.OrderDetails.Add(orderDetail);
+                    order.OrderDetails.Add(orderDetail);
                     
                     // Deduct stock
                     product.StockQuantity -= item.Quantity;
                 }
 
-                // Step 6: Create Payment
-                decimal changeAmount = request.AmountReceived - totalAmount;
-                if (request.AmountReceived < totalAmount)
-                {
-                    throw new Exception("Khách đưa thiếu tiền.");
-                }
+                _context.Orders.Add(order);
 
+                // Step 6: Create Payment
                 var payment = new Payment
                 {
-                    OrderId = order.Id,
+                    Order = order,
                     Amount = totalAmount,
                     AmountReceived = request.AmountReceived,
                     ChangeAmount = changeAmount,

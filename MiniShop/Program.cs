@@ -17,8 +17,17 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 
 // Configure CORS
+var allowedOrigins = builder.Configuration.GetSection("AllowedOrigins").Get<string[]>() ?? Array.Empty<string>();
 builder.Services.AddCors(options =>
 {
+    options.AddPolicy("AllowSpecificOrigins",
+        policyBuilder =>
+        {
+            policyBuilder.WithOrigins(allowedOrigins)
+                         .AllowAnyMethod()
+                         .AllowAnyHeader()
+                         .AllowCredentials();
+        });
     options.AddPolicy("AllowAll",
         policyBuilder =>
         {
@@ -111,7 +120,14 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.UseCors("AllowAll");
+if (app.Environment.IsDevelopment())
+{
+    app.UseCors("AllowAll");
+}
+else
+{
+    app.UseCors("AllowSpecificOrigins");
+}
 
 app.UseAuthentication();
 app.UseAuthorization();
