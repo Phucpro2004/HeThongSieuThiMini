@@ -169,6 +169,9 @@ function applyUnifiedUI() {
                     <i class="fa-solid fa-users-gear"></i> Quản lý Nhân sự
                 </a>
                 ` : ''}
+                <a class="nav-link ${currentPath.includes('customers.html') ? 'active' : ''}" href="/pages/customers.html">
+                    <i class="fa-solid fa-users"></i> Khách hàng
+                </a>
                 <a class="nav-link ${currentPath.includes('pos.html') ? 'active' : ''}" href="/pages/pos.html">
                     <i class="fa-solid fa-cart-shopping"></i> POS Bán hàng
                 </a>

@@ -35,12 +35,13 @@ function renderOrders(orders) {
     orders.forEach(o => {
         const d = new Date(o.createdAt);
         const dateStr = d.toLocaleDateString('vi-VN') + ' ' + d.toLocaleTimeString('vi-VN');
+        const customerDisplay = o.customerName ? `${o.customerName}<br><small class="text-muted">${o.customerPhone}</small>` : 'Khách vãng lai';
         
         tbody.innerHTML += `
             <tr>
                 <td><span class="badge bg-light text-dark border fw-bold">#${o.id}</span></td>
                 <td>${dateStr}</td>
-                <td>${o.customerPhone || 'Khách vãng lai'}</td>
+                <td>${customerDisplay}</td>
                 <td><span class="badge bg-info text-dark"><i class="fa-solid fa-user me-1"></i> ${o.cashierName || 'NV'}</span></td>
                 <td class="fw-bold text-success">${o.totalAmount.toLocaleString('vi-VN')} VNĐ</td>
                 <td><span class="badge bg-success rounded-pill">Hoàn tất</span></td>

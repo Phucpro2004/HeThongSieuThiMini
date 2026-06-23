@@ -139,7 +139,10 @@ namespace MiniShop.Services
                     Note = o.Note,
                     CreatedAt = o.CreatedAt,
                     CustomerId = o.CustomerId,
-                    CashierId = o.CashierId
+                    CustomerName = o.Customer != null ? o.Customer.FullName : null,
+                    CustomerPhone = o.Customer != null ? o.Customer.Phone : null,
+                    CashierId = o.CashierId,
+                    CashierName = o.Cashier != null ? o.Cashier.FullName : null
                 }).ToListAsync();
             return orders;
         }
@@ -164,7 +167,10 @@ namespace MiniShop.Services
                 Note = order.Note,
                 CreatedAt = order.CreatedAt,
                 CustomerId = order.CustomerId,
+                CustomerName = order.Customer?.FullName,
+                CustomerPhone = order.Customer?.Phone,
                 CashierId = order.CashierId,
+                CashierName = order.Cashier?.FullName,
                 OrderDetails = order.OrderDetails.Select(od => new OrderDetailResponse
                 {
                     Id = od.Id,
