@@ -14,7 +14,10 @@ namespace MiniShop.DTOs
         public string? Note { get; set; }
         public DateTime CreatedAt { get; set; }
         public int? CustomerId { get; set; }
+        public string? CustomerName { get; set; }
+        public string? CustomerPhone { get; set; }
         public int CashierId { get; set; }
+        public string? CashierName { get; set; }
         public List<OrderDetailResponse> OrderDetails { get; set; } = new List<OrderDetailResponse>();
     }
 }

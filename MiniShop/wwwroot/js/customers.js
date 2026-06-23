@@ -1,4 +1,5 @@
 let customersList = [];
+let addCustomerModal = null;
 
 document.addEventListener('DOMContentLoaded', () => {
     const token = localStorage.getItem('token');
@@ -6,6 +7,11 @@ document.addEventListener('DOMContentLoaded', () => {
         window.location.href = '/pages/login.html';
         return;
     }
+    
+    addCustomerModal = new bootstrap.Modal(document.getElementById('addCustomerModal'));
+    
+    document.getElementById('addCustomerForm').addEventListener('submit', handleAddCustomer);
+    
     fetchCustomers();
 });
 
@@ -30,17 +36,17 @@ function renderCustomers(customers) {
     }
 
     customers.forEach(c => {
-        const d = new Date(c.createdAt);
-        const dateStr = d.toLocaleDateString('vi-VN');
-        
         tbody.innerHTML += `
             <tr>
-                <td><span class="badge bg-light text-dark border">#${c.id}</span></td>
                 <td class="fw-bold">${c.fullName || '-'}</td>
-                <td class="text-primary fw-medium">${c.phone}</td>
+                <td>${c.phone || '-'}</td>
                 <td>${c.email || '-'}</td>
-                <td><span class="badge bg-warning text-dark px-3 py-2 fs-6"><i class="fa-solid fa-star text-danger me-1"></i> ${c.rewardPoints} đ</span></td>
-                <td class="text-muted">${dateStr}</td>
+                <td>${c.address || '-'}</td>
+                <td class="text-center"><span class="points-text"><i class="fa-solid fa-star"></i> ${c.points || 0}</span></td>
+                <td class="text-center">
+                    <button class="btn btn-sm btn-outline-primary me-1" onclick="editCustomer(${c.id})" title="Sửa"><i class="fa-solid fa-pen"></i></button>
+                    <button class="btn btn-sm btn-outline-danger" onclick="deleteCustomer(${c.id})" title="Xóa"><i class="fa-solid fa-trash"></i></button>
+                </td>
             </tr>
         `;
     });
@@ -54,8 +60,90 @@ function handleSearch(e) {
     }
     
     const filtered = customersList.filter(c => 
-        c.phone.includes(term) || 
+        (c.phone && c.phone.includes(term)) || 
         (c.fullName && c.fullName.toLowerCase().includes(term))
     );
     renderCustomers(filtered);
+}
+
+function showAddCustomerModal() {
+    document.getElementById('addCustomerForm').reset();
+    document.getElementById('customerId').value = '';
+    document.getElementById('customerModalTitle').innerHTML = '<i class="fa-solid fa-user-plus me-2"></i>Thêm Khách hàng mới';
+    addCustomerModal.show();
+}
+
+function editCustomer(id) {
+    const customer = customersList.find(c => c.id === id);
+    if (!customer) return;
+
+    document.getElementById('customerId').value = customer.id;
+    document.getElementById('custFullName').value = customer.fullName || '';
+    document.getElementById('custPhone').value = customer.phone || '';
+    document.getElementById('custEmail').value = customer.email || '';
+    document.getElementById('custAddress').value = customer.address || '';
+
+    document.getElementById('customerModalTitle').innerHTML = '<i class="fa-solid fa-user-pen me-2"></i>Cập nhật Khách hàng';
+    addCustomerModal.show();
+}
+
+async function deleteCustomer(id) {
+    if (!confirm('Bạn có chắc chắn muốn xóa khách hàng này không?')) return;
+
+    try {
+        await axios.delete(`/api/customers/${id}`);
+        await fetchCustomers();
+    } catch (error) {
+        console.error('Lỗi khi xóa khách hàng:', error);
+        alert('Lỗi hệ thống khi xóa khách hàng.');
+    }
+}
+
+async function handleAddCustomer(e) {
+    e.preventDefault();
+    
+    const btnSave = document.getElementById('btnSaveCustomer');
+    const originalText = btnSave.innerText;
+    btnSave.innerText = 'Đang lưu...';
+    btnSave.disabled = true;
+
+    const id = document.getElementById('customerId').value;
+    const isUpdate = !!id;
+
+    const customerData = {
+        fullName: document.getElementById('custFullName').value.trim(),
+        phone: document.getElementById('custPhone').value.trim(),
+        email: document.getElementById('custEmail').value.trim(),
+        address: document.getElementById('custAddress').value.trim()
+    };
+    
+    if (!isUpdate) {
+        customerData.points = 0; // Default starting points only on create
+    } else {
+        const existing = customersList.find(c => c.id == id);
+        if (existing) customerData.points = existing.points;
+    }
+
+    try {
+        if (isUpdate) {
+            await axios.put(`/api/customers/${id}`, customerData);
+        } else {
+            await axios.post('/api/customers', customerData);
+        }
+        
+        // Refresh the list
+        await fetchCustomers();
+        addCustomerModal.hide();
+        // Optional: show a success toast
+    } catch (error) {
+        console.error('Lỗi khi lưu khách hàng:', error);
+        if (error.response && error.response.data && error.response.data.message) {
+            alert(error.response.data.message);
+        } else {
+            alert('Lỗi hệ thống khi lưu khách hàng. Vui lòng thử lại.');
+        }
+    } finally {
+        btnSave.innerText = originalText;
+        btnSave.disabled = false;
+    }
 }

@@ -10,116 +10,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f4f6f9;
-        }
-        .pos-container {
-            height: 100vh;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-        }
-        .pos-header {
-            background-color: #ffffff;
-            height: 60px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 20px;
-            z-index: 10;
-        }
-        .pos-main {
-            display: flex;
-            flex-grow: 1;
-            height: calc(100vh - 60px);
-        }
-        /* Cột trái: 70% */
-        .left-panel {
-            width: 70%;
-            padding: 20px;
-            overflow-y: auto;
-            background-color: #f4f6f9;
-        }
-        /* Cột phải: 30% */
-        .right-panel {
-            width: 30%;
-            background-color: white;
-            box-shadow: -5px 0 15px rgba(0,0,0,0.05);
-            display: flex;
-            flex-direction: column;
-            border-left: 1px solid #eee;
-        }
-        .search-bar {
-            border-radius: 30px;
-            padding: 12px 20px;
-            font-size: 1.1rem;
-            border: 1px solid #ddd;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.02);
-        }
-        .product-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-            gap: 20px;
-            margin-top: 20px;
-        }
-        .product-card {
-            background: white;
-            border-radius: 12px;
-            border: none;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-            cursor: pointer;
-            transition: all 0.2s;
-            overflow: hidden;
-        }
-        .product-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 15px rgba(0,0,0,0.1);
-        }
-        .product-card img {
-            height: 140px;
-            object-fit: cover;
-            width: 100%;
-        }
-        .cart-customer {
-            padding: 15px;
-            border-bottom: 1px solid #eee;
-        }
-        .cart-items {
-            flex-grow: 1;
-            overflow-y: auto;
-            padding: 15px;
-        }
-        .cart-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px 0;
-            border-bottom: 1px dashed #eee;
-        }
-        .cart-summary {
-            padding: 20px;
-            background-color: #f8f9fa;
-            border-top: 1px solid #eee;
-        }
-        .btn-checkout {
-            background-color: #198754;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 1.5rem;
-            font-weight: 700;
-            padding: 15px;
-            width: 100%;
-            transition: 0.2s;
-        }
-        .btn-checkout:hover {
-            background-color: #157347;
-            transform: scale(1.02);
-        }
-    </style>
+    <link rel="stylesheet" href="/css/global-theme.css" />
 </head>
 <body>
     <div class="container-fluid p-0 pos-container">
@@ -141,7 +32,7 @@
             <div class="left-panel">
                 <div class="row mb-3">
                     <div class="col-12">
-                        <input type="text" id="posSearch" class="form-control search-bar" placeholder="🔍 Nhập tên sản phẩm để tìm kiếm..." onkeyup="filterProducts()">
+                        <input type="text" id="posSearch" class="form-control search-bar-pos" placeholder="🔍 Nhập tên sản phẩm để tìm kiếm..." onkeyup="filterProducts()">
                     </div>
                 </div>
                 
@@ -155,15 +46,16 @@
                 <!-- Top: Khách hàng -->
                 <div class="cart-customer">
                     <div class="input-group">
-                        <span class="input-group-text bg-white"><i class="fa-solid fa-user text-muted"></i></span>
+                        <span class="input-group-text"><i class="fa-solid fa-user text-muted"></i></span>
                         <input type="text" id="customerPhone" class="form-control" placeholder="SĐT Khách hàng...">
-                        <button class="btn btn-outline-primary" onclick="searchCustomer()"><i class="fa-solid fa-magnifying-glass"></i></button>
+                        <button class="btn btn-outline-primary" onclick="searchCustomer()" title="Tìm kiếm"><i class="fa-solid fa-magnifying-glass"></i></button>
+                        <button class="btn btn-success" onclick="showQuickAddModal()" title="Thêm khách hàng mới"><i class="fa-solid fa-user-plus"></i></button>
                     </div>
                     <div id="customerInfo" class="mt-2 small text-success d-none fw-medium">
-                        Khách: <span id="customerName"></span> | Điểm: <span id="customerPoints"></span>
+                        Khách: <span id="customerName" class="text-main"></span> | Điểm: <span id="customerPoints" class="text-warning"></span>
                         <div class="form-check mt-1">
                             <input class="form-check-input" type="checkbox" id="usePointsCheckbox" onchange="updateCartTotals()">
-                            <label class="form-check-label text-dark" for="usePointsCheckbox">
+                            <label class="form-check-label text-muted" for="usePointsCheckbox">
                                 Sử dụng điểm giảm giá (1 điểm = 1.000 VNĐ)
                             </label>
                         </div>
@@ -197,10 +89,52 @@
         </div>
     </div>
 
+    <!-- Quick Add Customer Modal for POS -->
+    <div class="modal fade" id="quickAddCustomerModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow" style="border-radius: 12px;">
+                <div class="modal-header bg-primary text-white border-0" style="border-radius: 12px 12px 0 0;">
+                    <h5 class="modal-title font-weight-bold"><i class="fa-solid fa-user-plus me-2"></i>Khách hàng chưa tồn tại</h5>
+                    <button type="button" class="btn-close btn-close-white" onclick="quickAddCustomerModal.hide()" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <p class="text-muted mb-4">Số điện thoại này chưa được đăng ký. Bạn có muốn tạo tài khoản mới để tích điểm cho khách không?</p>
+                    <form id="quickAddCustomerForm">
+                        <div class="mb-3">
+                            <label class="form-label fw-medium">Số điện thoại <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="quickCustPhone" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-medium">Họ và Tên <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="quickCustFullName" required placeholder="Nhập tên khách hàng...">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-medium">Email</label>
+                            <input type="email" class="form-control" id="quickCustEmail" placeholder="Nhập email (không bắt buộc)...">
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label fw-medium">Địa chỉ</label>
+                            <input type="text" class="form-control" id="quickCustAddress" placeholder="Nhập địa chỉ (không bắt buộc)...">
+                        </div>
+                        <div class="d-flex justify-content-between gap-2">
+                            <button type="button" class="btn btn-outline-secondary w-50 py-2 fw-bold" onclick="quickAddCustomerModal.hide()">
+                                Bỏ qua (Không tích điểm)
+                            </button>
+                            <button type="submit" class="btn btn-success w-50 py-2 fw-bold" id="btnQuickSaveCustomer">
+                                Tạo & Chọn Khách
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="/js/security.js"></script>
     <script src="/js/site.js"></script>
-    <script src="/js/pos.js"></script>
+    <script src="/js/pos.js?v=3"></script>
 </body>
 </html>

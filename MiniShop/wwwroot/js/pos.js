@@ -2,6 +2,8 @@ let products = [];
 let cart = [];
 let currentCustomer = null;
 
+let quickAddCustomerModal = null;
+
 document.addEventListener('DOMContentLoaded', async () => {
     const token = localStorage.getItem('token');
     if (!token) {
@@ -9,17 +11,27 @@ document.addEventListener('DOMContentLoaded', async () => {
         return;
     }
     
+    // Khởi tạo Bootstrap modal
+    const modalEl = document.getElementById('quickAddCustomerModal');
+    if (modalEl) {
+        quickAddCustomerModal = new bootstrap.Modal(modalEl);
+        document.getElementById('quickAddCustomerForm').addEventListener('submit', handleQuickCreateCustomer);
+    }
+    
     await loadCategories();
     await loadProducts();
 });
+
 
 async function loadCategories() {
     try {
         const res = await axios.get('/api/Categories');
         const select = document.getElementById('posCategory');
-        res.data.forEach(c => {
-            select.innerHTML += `<option value="${c.id}">${c.name}</option>`;
-        });
+        if (select) {
+            res.data.forEach(c => {
+                select.innerHTML += `<option value="${c.id}">${c.name}</option>`;
+            });
+        }
     } catch (error) {
         console.error('Failed to load categories', error);
     }
@@ -59,7 +71,8 @@ function renderProducts(items) {
 
 function filterProducts() {
     const search = document.getElementById('posSearch').value.toLowerCase();
-    const catId = document.getElementById('posCategory').value;
+    const catSelect = document.getElementById('posCategory');
+    const catId = catSelect ? catSelect.value : '';
     
     const filtered = products.filter(p => {
         const matchName = p.name.toLowerCase().includes(search);
@@ -185,7 +198,7 @@ function calculateChange() {
 }
 
 async function searchCustomer() {
-    const phone = document.getElementById('customerPhone').value;
+    const phone = document.getElementById('customerPhone').value.trim();
     if (!phone) {
         currentCustomer = null;
         document.getElementById('customerInfo').classList.add('d-none');
@@ -201,10 +214,92 @@ async function searchCustomer() {
         document.getElementById('customerInfo').classList.remove('d-none');
         updateCartTotals();
     } catch (error) {
-        alert('Không tìm thấy khách hàng!');
+        // Customer not found, show quick add modal instead of alert
+        if (error.response && error.response.status === 404) {
+            document.getElementById('quickCustPhone').value = phone;
+            document.getElementById('quickCustFullName').value = '';
+            
+            if (quickAddCustomerModal) {
+                quickAddCustomerModal.show();
+            }
+        } else {
+            alert('Lỗi hệ thống khi tìm kiếm khách hàng!');
+        }
+        
         currentCustomer = null;
         document.getElementById('customerInfo').classList.add('d-none');
         updateCartTotals();
+    }
+}
+
+async function showQuickAddModal() {
+    const phone = document.getElementById('customerPhone').value.trim();
+    
+    // Check if the phone already exists before showing the modal
+    if (phone) {
+        try {
+            const res = await axios.get(`/api/customers/search?phone=${phone}`);
+            if (res.data) {
+                alert('Tài khoản khách hàng này đã tồn tại!');
+                // Auto select this existing customer
+                currentCustomer = res.data;
+                document.getElementById('customerName').innerText = currentCustomer.fullName;
+                document.getElementById('customerPoints').innerText = currentCustomer.points;
+                document.getElementById('customerInfo').classList.remove('d-none');
+                updateCartTotals();
+                return; // Do not show modal
+            }
+        } catch (error) {
+            // If 404, proceed to show modal
+        }
+    }
+
+    document.getElementById('quickCustPhone').value = phone;
+    document.getElementById('quickCustFullName').value = '';
+    document.getElementById('quickCustEmail').value = '';
+    document.getElementById('quickCustAddress').value = '';
+    if (quickAddCustomerModal) {
+        quickAddCustomerModal.show();
+    }
+}
+
+async function handleQuickCreateCustomer(e) {
+    e.preventDefault();
+    
+    const btnSave = document.getElementById('btnQuickSaveCustomer');
+    const originalText = btnSave.innerText;
+    btnSave.innerText = 'Đang xử lý...';
+    btnSave.disabled = true;
+
+    const newCustomer = {
+        fullName: document.getElementById('quickCustFullName').value.trim(),
+        phone: document.getElementById('quickCustPhone').value.trim(),
+        email: document.getElementById('quickCustEmail').value.trim(),
+        address: document.getElementById('quickCustAddress').value.trim(),
+        points: 0
+    };
+
+    try {
+        const res = await axios.post('/api/customers', newCustomer);
+        
+        // Auto select the created customer
+        currentCustomer = res.data;
+        document.getElementById('customerName').innerText = currentCustomer.fullName;
+        document.getElementById('customerPoints').innerText = currentCustomer.points;
+        document.getElementById('customerInfo').classList.remove('d-none');
+        
+        updateCartTotals();
+        quickAddCustomerModal.hide();
+    } catch (error) {
+        console.error('Lỗi khi tạo khách hàng mới:', error);
+        if (error.response && error.response.data && error.response.data.message) {
+            alert(error.response.data.message);
+        } else {
+            alert('Lỗi hệ thống khi tạo tài khoản khách hàng.');
+        }
+    } finally {
+        btnSave.innerText = originalText;
+        btnSave.disabled = false;
     }
 }
 
