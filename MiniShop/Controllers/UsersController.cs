@@ -57,5 +57,32 @@ namespace MiniShop.Controllers
             if (!success) return NotFound();
             return NoContent();
         }
+
+        [HttpPut("{id}/approve")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Approve(int id)
+        {
+            var success = await _userService.ApproveUserAsync(id);
+            if (!success) return NotFound();
+            return Ok(new { message = "User approved successfully" });
+        }
+
+        [HttpPut("{id}/reset-password")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> ResetPassword(int id, [FromBody] ResetPasswordRequest request)
+        {
+            var success = await _userService.ResetPasswordAsync(id, request.NewPassword);
+            if (!success) return NotFound();
+            return Ok(new { message = "Password reset successfully" });
+        }
+
+        [HttpPut("{id}/toggle-status")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> ToggleStatus(int id)
+        {
+            var success = await _userService.ToggleUserStatusAsync(id);
+            if (!success) return NotFound();
+            return Ok(new { message = "User status toggled successfully" });
+        }
     }
 }

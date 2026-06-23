@@ -19,14 +19,21 @@ namespace MiniShop.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequest request)
         {
-            var token = await _authService.LoginAsync(request);
-
-            if (token == null)
+            try
             {
-                return Unauthorized(new { message = "Invalid username or password" });
-            }
+                var token = await _authService.LoginAsync(request);
 
-            return Ok(new { token });
+                if (token == null)
+                {
+                    return Unauthorized(new { message = "Invalid username or password" });
+                }
+
+                return Ok(new { token });
+            }
+            catch (System.UnauthorizedAccessException ex)
+            {
+                return StatusCode(403, new { message = ex.Message });
+            }
         }
 
         [HttpPost("register")]
@@ -36,7 +43,7 @@ namespace MiniShop.Controllers
 
             if (!success)
             {
-                return BadRequest(new { message = "Username already exists" });
+                return BadRequest(new { message = "Email already exists" });
             }
 
             return Ok(new { message = "Registration successful" });

@@ -18,7 +18,7 @@ namespace MiniShop.Controllers
             _reportService = reportService;
         }
 
-        [HttpGet("revenue")]
+        [HttpGet("daily-revenue")]
         public async Task<IActionResult> GetRevenueReport([FromQuery] DateTime startDate, [FromQuery] DateTime endDate)
         {
             if (startDate > endDate)
@@ -28,6 +28,13 @@ namespace MiniShop.Controllers
 
             var report = await _reportService.GetRevenueReportAsync(startDate, endDate);
             return Ok(report);
+        }
+
+        [HttpGet("low-stock")]
+        public async Task<IActionResult> GetLowStock()
+        {
+            var products = await _reportService.GetLowStockProductsAsync();
+            return Ok(products);
         }
     }
 }

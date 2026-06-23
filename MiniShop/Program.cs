@@ -55,6 +55,7 @@ builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IReportService, ReportService>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<ICustomerService, CustomerService>();
 
 // Configure Authentication (JWT)
 var key = Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"] ?? "SecretKeyForJwtAuthNeedsToBeLongEnough!");
@@ -142,5 +143,15 @@ using (var scope = app.Services.CreateScope())
     context.Seed();
 }
 app.UseStaticFiles();
+
+// Add simple redirect for legacy URLs
+app.MapGet("/", context => {
+    context.Response.Redirect("/pages/login.html");
+    return Task.CompletedTask;
+});
+app.MapGet("/Login", context => {
+    context.Response.Redirect("/pages/login.html");
+    return Task.CompletedTask;
+});
 
 app.Run();

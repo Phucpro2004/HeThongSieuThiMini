@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tài khoản - MiniShop</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8f9fa;
+            color: #333;
+        }
+        /* Sidebar Styling */
+        .sidebar {
+            width: 250px;
+            background-color: #212529;
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            color: white;
+            z-index: 1000;
+        }
+        .sidebar .logo {
+            padding: 20px;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #fff;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            text-align: center;
+        }
+        .sidebar .nav-link {
+            color: rgba(255,255,255,0.7);
+            padding: 15px 25px;
+            font-weight: 500;
+            transition: 0.3s;
+        }
+        .sidebar .nav-link:hover, .sidebar .nav-link.active {
+            color: white;
+            background-color: #0d6efd;
+            border-right: 4px solid #fff;
+        }
+        .sidebar .nav-link i {
+            width: 25px;
+            text-align: center;
+            margin-right: 10px;
+        }
+        
+        /* Main Content */
+        .main-content {
+            margin-left: 250px;
+            padding: 30px;
+        }
+
+        /* Data Card */
+        .data-card {
+            background: white;
+            border-radius: 10px;
+            border: none;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        .data-card .card-header {
+            background-color: white;
+            border-bottom: 1px solid #eee;
+            border-radius: 10px 10px 0 0;
+            padding: 20px;
+            font-weight: 700;
+        }
+        
+        /* User Profile Header */
+        header {
+            border-bottom: 1px solid #eee;
+            padding-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar d-flex flex-column">
+        <!-- Rendered by site.js -->
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <header class="d-flex justify-content-between align-items-center mb-4">
+            <h3 class="fw-bold mb-0 text-dark">Quản lý Tài khoản</h3>
+            <div class="user-profile d-flex align-items-center">
+                <!-- Rendered by site.js -->
+            </div>
+        </header>
+
+        <div class="card data-card mb-4">
+            <div class="card-header text-primary d-flex justify-content-between align-items-center">
+                <span><i class="fa-solid fa-user-tie me-2"></i>Danh sách Nhân viên & Quản trị</span>
+                <button class="btn btn-primary rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#userModal" onclick="openAddModal()">
+                    <i class="fa-solid fa-plus me-1"></i> Thêm tài khoản
+                </button>
+            </div>
+            <div class="card-body p-0 mt-3">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0" id="usersTable">
+                        <thead class="table-light">
+                            <tr>
+                                <th>ID</th>
+                                <th>Tên đăng nhập (Email)</th>
+                                <th>Họ Tên</th>
+                                <th>Vai trò</th>
+                                <th>Trạng thái</th>
+                                <th class="text-center">Hành động</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Populated via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add User Modal -->
+    <div class="modal fade" id="userModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content border-0 shadow" style="border-radius: 12px;">
+          <div class="modal-header bg-light border-0" style="border-radius: 12px 12px 0 0;">
+            <h5 class="modal-title font-weight-bold text-primary"><i class="fa-solid fa-user-plus me-2"></i>Tạo Tài Khoản Mới</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body p-4">
+            <form id="userForm">
+                <div class="mb-3">
+                    <label class="form-label text-muted fw-medium">Họ và Tên</label>
+                    <input type="text" class="form-control" id="newFullName" required placeholder="Nguyễn Văn A">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label text-muted fw-medium">Email (Tên đăng nhập)</label>
+                    <input type="email" class="form-control" id="newEmail" required placeholder="email@minishop.com">
+                </div>
+                <!-- Hide username since we use email as username in backend -->
+                <input type="hidden" id="newUsername">
+                <div class="mb-3">
+                    <label class="form-label text-muted fw-medium">Mật khẩu</label>
+                    <input type="password" class="form-control" id="newPassword" required placeholder="••••••••">
+                </div>
+                <div class="mb-4">
+                    <label class="form-label text-muted fw-medium">Vai trò</label>
+                    <select class="form-select" id="newRole">
+                        <option value="Cashier">Thu ngân</option>
+                        <option value="Admin">Quản trị viên</option>
+                    </select>
+                </div>
+                <button type="button" class="btn btn-primary w-100 py-2 rounded-pill fw-bold" onclick="saveUser()">LƯU TÀI KHOẢN</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Reset Password Modal -->
+    <div class="modal fade" id="resetPassModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content border-0 shadow" style="border-radius: 12px;">
+          <div class="modal-header bg-warning border-0" style="border-radius: 12px 12px 0 0;">
+            <h5 class="modal-title font-weight-bold text-dark"><i class="fa-solid fa-key me-2"></i>Cấp Lại Mật Khẩu</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body p-4">
+            <form id="resetPassForm">
+                <input type="hidden" id="resetUserId">
+                <div class="mb-3">
+                    <label class="form-label text-muted fw-medium">Mật khẩu mới</label>
+                    <input type="password" class="form-control" id="resetNewPassword" required placeholder="Nhập mật khẩu mới...">
+                </div>
+                <button type="button" class="btn btn-warning w-100 py-2 rounded-pill fw-bold text-dark" onclick="submitResetPassword()">ĐỔI MẬT KHẨU</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="/js/security.js"></script>
+    <script src="/js/site.js"></script>
+    <script src="/js/users.js"></script>
+</body>
+</html>

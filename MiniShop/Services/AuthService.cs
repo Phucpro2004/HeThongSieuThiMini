@@ -33,22 +33,28 @@ namespace MiniShop.Services
                 return null; // Invalid credentials
             }
 
+            if (!user.IsActive)
+            {
+                throw new UnauthorizedAccessException("Tài khoản đang chờ Admin duyệt");
+            }
+
             return GenerateJwtToken(user);
         }
 
         public async Task<bool> RegisterAsync(RegisterRequest request)
         {
-            if (await _context.Users.AnyAsync(u => u.Email == request.Username))
+            if (await _context.Users.AnyAsync(u => u.Email == request.Email))
             {
-                return false; // Username already exists
+                return false; // Email already exists
             }
 
             var user = new Models.User
             {
-                FullName = request.Username,
-                Email = request.Username,
+                FullName = request.FullName,
+                Email = request.Email,
                 PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password),
-                Role = "User" // Default role
+                Role = "Cashier", // Default role per request
+                IsActive = false // Needs admin approval
             };
 
             _context.Users.Add(user);

@@ -29,6 +29,15 @@ namespace MiniShop.Controllers
             return Ok(products);
         }
 
+        [HttpGet("search")]
+        [AllowAnonymous]
+        public async Task<IActionResult> Search([FromQuery] string keyword)
+        {
+            // Re-using GetAllAsync but defaulting to large page size or no pagination for search
+            var products = await _productService.GetAllAsync(1, 100, keyword);
+            return Ok(products);
+        }
+
         [HttpGet("{id}")]
         [AllowAnonymous]
         public async Task<IActionResult> GetById(int id)

@@ -10,6 +10,7 @@ namespace MiniShop.Data
         {
         }
 
+        //phuc da them sua 
         public DbSet<User> Users { get; set; }
         public DbSet<Customer> Customers { get; set; }
         public DbSet<Category> Categories { get; set; }
@@ -82,18 +83,41 @@ namespace MiniShop.Data
 
         public void Seed()
         {
-            if (!Users.Any())
+            var passHash = BCrypt.Net.BCrypt.HashPassword("ToilaADMIN123");
+
+            // 1. Delete existing admin to be totally fresh
+            var oldAdmin = Users.FirstOrDefault(u => u.Email == "admin@minishop.com");
+            if (oldAdmin != null)
             {
-                var admin = new User
-                {
-                    FullName = "Administrator",
-                    Email = "admin@minishop.com",
-                    PasswordHash = BCrypt.Net.BCrypt.HashPassword("123"),
-                    Role = "Admin"
-                };
-                Users.Add(admin);
+                Users.Remove(oldAdmin);
                 SaveChanges();
             }
+
+            // 2. Add new Admin
+            Users.Add(new User 
+            { 
+                FullName = "Admin", 
+                Email = "admin@minishop.com", 
+                PasswordHash = passHash, 
+                Role = "Admin", 
+                IsActive = true 
+            });
+
+            // 3. Add CN01
+            var c1 = Users.FirstOrDefault(u => u.Email == "CN01@minishop.com");
+            if (c1 == null)
+            {
+                Users.Add(new User { FullName = "Thu Ngân 01", Email = "CN01@minishop.com", PasswordHash = passHash, Role = "Cashier", IsActive = true });
+            }
+
+            // 4. Add CN02
+            var c2 = Users.FirstOrDefault(u => u.Email == "CN02@minishop.com");
+            if (c2 == null)
+            {
+                Users.Add(new User { FullName = "Thu Ngân 02", Email = "CN02@minishop.com", PasswordHash = passHash, Role = "Cashier", IsActive = true });
+            }
+
+            SaveChanges();
         }
     }
 }

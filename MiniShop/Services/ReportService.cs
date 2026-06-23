@@ -34,5 +34,28 @@ namespace MiniShop.Services
                 TotalRevenue = totalRevenue
             };
         }
+
+        public async Task<System.Collections.Generic.IEnumerable<ProductResponse>> GetLowStockProductsAsync()
+        {
+            var products = await _context.Products
+                .Include(p => p.Category)
+                .Where(p => p.StockQuantity < 10)
+                .Select(p => new ProductResponse
+                {
+                    Id = p.Id,
+                    Name = p.Name,
+                    Barcode = p.Barcode,
+                    Price = p.Price,
+                    OriginalPrice = p.OriginalPrice,
+                    StockQuantity = p.StockQuantity,
+                    Description = p.Description,
+                    ImageUrl = p.ImageUrl,
+                    Unit = p.Unit,
+                    IsActive = p.IsActive,
+                    CategoryId = p.CategoryId,
+                    CategoryName = p.Category != null ? p.Category.Name : null
+                }).ToListAsync();
+            return products;
+        }
     }
 }

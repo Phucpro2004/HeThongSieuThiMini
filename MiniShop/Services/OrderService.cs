@@ -66,6 +66,17 @@ namespace MiniShop.Services
                     OrderDetails = new List<OrderDetail>()
                 };
 
+                // Add points to customer if CustomerId is provided
+                if (request.CustomerId.HasValue)
+                {
+                    var customer = await _context.Customers.FindAsync(request.CustomerId.Value);
+                    if (customer != null)
+                    {
+                        int earnedPoints = (int)(totalAmount / 10000);
+                        customer.Points += earnedPoints;
+                    }
+                }
+
                 // Step 4 & 5: Create OrderDetails and Update Stock
                 foreach (var item in request.CartItems)
                 {
@@ -111,6 +122,59 @@ namespace MiniShop.Services
                 await transaction.RollbackAsync();
                 throw;
             }
+        }
+
+        public async Task<IEnumerable<OrderResponse>> GetAllOrdersAsync()
+        {
+            var orders = await _context.Orders
+                .OrderByDescending(o => o.CreatedAt)
+                .Select(o => new OrderResponse
+                {
+                    Id = o.Id,
+                    OrderCode = o.OrderCode,
+                    SubTotal = o.SubTotal,
+                    Discount = o.Discount,
+                    TotalAmount = o.TotalAmount,
+                    Status = o.Status,
+                    Note = o.Note,
+                    CreatedAt = o.CreatedAt,
+                    CustomerId = o.CustomerId,
+                    CashierId = o.CashierId
+                }).ToListAsync();
+            return orders;
+        }
+
+        public async Task<OrderResponse?> GetOrderByIdAsync(int id)
+        {
+            var order = await _context.Orders
+                .Include(o => o.OrderDetails)
+                    .ThenInclude(od => od.Product)
+                .FirstOrDefaultAsync(o => o.Id == id);
+
+            if (order == null) return null;
+
+            return new OrderResponse
+            {
+                Id = order.Id,
+                OrderCode = order.OrderCode,
+                SubTotal = order.SubTotal,
+                Discount = order.Discount,
+                TotalAmount = order.TotalAmount,
+                Status = order.Status,
+                Note = order.Note,
+                CreatedAt = order.CreatedAt,
+                CustomerId = order.CustomerId,
+                CashierId = order.CashierId,
+                OrderDetails = order.OrderDetails.Select(od => new OrderDetailResponse
+                {
+                    Id = od.Id,
+                    ProductId = od.ProductId,
+                    ProductName = od.Product?.Name,
+                    Quantity = od.Quantity,
+                    UnitPrice = od.UnitPrice,
+                    SubTotal = od.SubTotal
+                }).ToList()
+            };
         }
     }
 }
