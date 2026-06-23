@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lịch sử Hóa đơn - MiniShop</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8f9fa;
+            color: #333;
+        }
+        /* Sidebar Styling */
+        .sidebar {
+            width: 250px;
+            background-color: #ffffff;
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            color: #333;
+            z-index: 1000;
+        }
+        /* Main Content */
+        .main-content {
+            margin-left: 250px;
+            padding: 30px;
+        }
+
+        /* Data Card */
+        .data-card {
+            background: white;
+            border-radius: 10px;
+            border: none;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        .data-card .card-header {
+            background-color: white;
+            border-bottom: 1px solid #eee;
+            border-radius: 10px 10px 0 0;
+            padding: 20px;
+            font-weight: 700;
+        }
+        
+        /* Header */
+        header {
+            border-bottom: 1px solid #eee;
+            padding-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar d-flex flex-column">
+        <!-- Rendered by site.js -->
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <header class="d-flex justify-content-between align-items-center mb-4">
+            <h3 class="fw-bold mb-0 text-dark">Lịch sử Hóa đơn</h3>
+            <div class="user-profile d-flex align-items-center">
+                <!-- Rendered by site.js -->
+            </div>
+        </header>
+
+        <div class="card data-card mb-4">
+            <div class="card-header text-primary d-flex justify-content-between align-items-center">
+                <span><i class="fa-solid fa-receipt me-2"></i>Danh sách Hóa đơn Bán hàng</span>
+            </div>
+            <div class="card-body mt-3">
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0"><i class="fa-solid fa-search text-muted"></i></span>
+                            <input type="text" id="searchInput" class="form-control border-start-0 bg-light" placeholder="Tìm kiếm mã hóa đơn..." onkeyup="handleSearch(event)">
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0" id="ordersTable">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Mã HĐ</th>
+                                <th>Thời gian</th>
+                                <th>Khách hàng</th>
+                                <th>Thu ngân</th>
+                                <th>Tổng tiền</th>
+                                <th>Trạng thái</th>
+                                <th class="text-center">Chi tiết</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Populated via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Order Detail Modal -->
+    <div class="modal fade" id="orderModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content border-0 shadow" style="border-radius: 12px;">
+          <div class="modal-header bg-light border-0" style="border-radius: 12px 12px 0 0;">
+            <h5 class="modal-title font-weight-bold text-primary"><i class="fa-solid fa-file-invoice me-2"></i>Chi tiết Hóa đơn #<span id="modalOrderId"></span></h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body p-4">
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <p class="mb-1 text-muted">Thời gian:</p>
+                    <p class="fw-bold" id="modalOrderDate">-</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <p class="mb-1 text-muted">Tổng tiền:</p>
+                    <p class="fw-bold text-success fs-5" id="modalOrderTotal">-</p>
+                </div>
+            </div>
+            <h6 class="fw-bold mb-3 border-bottom pb-2">Danh sách Sản phẩm</h6>
+            <div class="table-responsive">
+                <table class="table table-sm align-middle" id="orderItemsTable">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Sản phẩm</th>
+                            <th class="text-center">SL</th>
+                            <th class="text-end">Đơn giá</th>
+                            <th class="text-end">Thành tiền</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Items here -->
+                    </tbody>
+                </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="/js/security.js"></script>
+    <script src="/js/site.js"></script>
+    <script src="/js/orders.js"></script>
+</body>
+</html>
